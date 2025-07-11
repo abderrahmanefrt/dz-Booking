@@ -53,32 +53,59 @@ exports.getFlightsById=async(req, res)=>{
   }
 }
 
-exports.updateFlight=async(res,req)=>{
-  const flightid= req.params.id;
-    const { airline, flightnumber, departure, arrival, price ,seatsAvailable }= req.body;
- try{
-    const flight=await Flight.findByIdAndUpdate({
-      airline,
-      flightnumber,
-      departure: {
-        city: departure.city,
-        date: departure.date
-      },
-      arrival: {
+exports.updateFlight = async(req, res) => {
+  const flightId = req.params.id;
+  const { airline, flightnumber, departure, arrival, price, seatsAvailable } = req.body;
+  
+  try {
+    const flight = await Flight.findByIdAndUpdate(
+      flightId,  // ID du vol à modifier
+      { 
+        airline,
+        flightnumber,
+        departure: {
+          city: departure.city,
+          date: departure.date
+        },
+        arrival: {
           city: arrival.city,
-        date: arrival.date
+          date: arrival.date
+        },
+        price,
+        seatsAvailable 
       },
-      price,
-      seatsAvailable
-    })
-      if (!flight){
-      return res.status(404).json({message: 'Flight not find'})
+      { new: true }  // Retourne le document mis à jour
+    );
+
+    if (!flight) {
+      return res.status(404).json({ message: 'Flight not found' });
     }
-    res.status(200).json({message: 'Flight updated successfully',flight})
-   
- }catch (error){
-    console.error('Error Fetching flight:',error);
-    res.status(500).json({message : 'Internal server error'})
+
+    res.status(200).json({ 
+      message: 'Flight updated successfully',
+      flight 
+    });
+    
+  } catch (error) {
+    console.error('Error updating flight:', error);
+    res.status(500).json({ message: 'Internal server error' });
   }
 }
+
+exports.deleteFlight= async(req ,res)=>{
+  const flightId = req.params.id;
+  try{
+    const flight =await Flight.findByIdAndDelete(flightId);
+        if (!flight) {
+      return res.status(404).json({ message: 'Flight not found' });
+    }
+    res.status(200).json({ message: 'Flight deleted successfully'})
+  }catch (error){
+    console.error('Error deleting:',error);
+    res.status(500).json({message:'error deleting flight'});
+  }
+}
+
+
+
 
