@@ -37,3 +37,48 @@ exports.getsAllflight=async(req, res)=>{
     
   }
 }
+
+exports.getFlightsById=async(req, res)=>{
+  const flightId = req.params.id;
+  try {
+    const flight =await Flight.findById(flightId);
+    if (!flight){
+      return res.status(404).json({message: 'Flight not find'})
+
+    }
+    res.status(200).json(flight)
+  }catch (error){
+    console.error('Error Fetching flight:',error);
+    res.status(500).json({message : 'Internal server error'})
+  }
+}
+
+exports.updateFlight=async(res,req)=>{
+  const flightid= req.params.id;
+    const { airline, flightnumber, departure, arrival, price ,seatsAvailable }= req.body;
+ try{
+    const flight=await Flight.findByIdAndUpdate({
+      airline,
+      flightnumber,
+      departure: {
+        city: departure.city,
+        date: departure.date
+      },
+      arrival: {
+          city: arrival.city,
+        date: arrival.date
+      },
+      price,
+      seatsAvailable
+    })
+      if (!flight){
+      return res.status(404).json({message: 'Flight not find'})
+    }
+    res.status(200).json({message: 'Flight updated successfully',flight})
+   
+ }catch (error){
+    console.error('Error Fetching flight:',error);
+    res.status(500).json({message : 'Internal server error'})
+  }
+}
+
